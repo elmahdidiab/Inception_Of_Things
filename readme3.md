@@ -11,7 +11,7 @@
   Keep a few lines of the install steps above it for context. Tight crop, no desktop or dock.
   Green-on-black or your actual color scheme — just make it look sharp.
 -->
-![Full pipeline — ALL DONE](demo2.gif)
+![Full pipeline — ALL DONE](demo5.gif)
 
 ---
 
