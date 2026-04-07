@@ -1,0 +1,257 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app3-html
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>App 3 - Default Backend</title>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+            
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            
+            body {
+                font-family: 'Inter', sans-serif;
+                background: #1a1a1a;
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .particles {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                background: radial-gradient(circle at 20% 30%, #ff3366 0%, transparent 30%),
+                            radial-gradient(circle at 80% 70%, #ff6b6b 0%, transparent 30%),
+                            radial-gradient(circle at 40% 80%, #c92a2a 0%, transparent 30%);
+                filter: blur(60px);
+                opacity: 0.3;
+                animation: moveParticles 20s ease infinite;
+            }
+            
+            @keyframes moveParticles {
+                0%, 100% { transform: scale(1) rotate(0deg); }
+                33% { transform: scale(1.2) rotate(120deg); }
+                66% { transform: scale(0.8) rotate(240deg); }
+            }
+            
+            .container {
+                background: rgba(30, 30, 30, 0.8);
+                backdrop-filter: blur(20px);
+                border-radius: 30px;
+                padding: 4rem;
+                text-align: center;
+                color: white;
+                position: relative;
+                z-index: 10;
+                max-width: 600px;
+                margin: 2rem;
+                border: 1px solid rgba(255, 255, 255, 0.05);
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+                overflow: hidden;
+            }
+            
+            .container::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: linear-gradient(90deg, #ff3366, #ff6b6b, #c92a2a, #ff3366);
+                background-size: 300% 100%;
+                animation: gradientMove 3s linear infinite;
+            }
+            
+            @keyframes gradientMove {
+                0% { background-position: 0% 0%; }
+                100% { background-position: 300% 0%; }
+            }
+            
+            .default-tag {
+                background: rgba(255, 51, 102, 0.2);
+                border: 1px solid #ff3366;
+                color: #ff3366;
+                padding: 0.5rem 1.5rem;
+                border-radius: 100px;
+                display: inline-block;
+                font-size: 0.9rem;
+                font-weight: 600;
+                letter-spacing: 2px;
+                margin-bottom: 2rem;
+                text-transform: uppercase;
+            }
+            
+            h1 {
+                font-size: 5rem;
+                font-weight: 800;
+                margin-bottom: 1rem;
+                background: linear-gradient(135deg, #ff3366, #ff6b6b);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                filter: drop-shadow(0 0 20px rgba(255, 51, 102, 0.3));
+            }
+            
+            .catch-all {
+                font-size: 1.2rem;
+                color: #999;
+                margin-bottom: 3rem;
+                font-weight: 300;
+            }
+            
+            .wildcard-box {
+                background: rgba(255, 255, 255, 0.03);
+                border: 1px dashed #ff3366;
+                border-radius: 15px;
+                padding: 2rem;
+                margin: 2rem 0;
+            }
+            
+            .wildcard-symbol {
+                font-size: 4rem;
+                color: #ff3366;
+                opacity: 0.5;
+                font-weight: 800;
+            }
+            
+            .wildcard-text {
+                font-size: 1rem;
+                color: #ccc;
+                margin-top: 1rem;
+            }
+            
+            .route-table {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+                margin-top: 2rem;
+                text-align: left;
+                font-size: 0.9rem;
+            }
+            
+            .route-item {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                background: rgba(255, 255, 255, 0.03);
+                padding: 0.8rem;
+                border-radius: 8px;
+            }
+            
+            .route-host {
+                color: #ff3366;
+                font-weight: 600;
+            }
+            
+            .route-arrow {
+                color: #444;
+                margin: 0 0.5rem;
+            }
+            
+            .route-target {
+                color: #999;
+            }
+            
+            .glow {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                background: radial-gradient(circle at center, #ff3366 0%, transparent 70%);
+                opacity: 0.1;
+                filter: blur(50px);
+                z-index: -1;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="particles"></div>
+        <div class="glow"></div>
+        
+        <div class="container">
+            <div class="default-tag">⚠️ DEFAULT BACKEND</div>
+            <h1>APP 3</h1>
+            <div class="catch-all">Catch-all / Default Destination</div>
+            
+            <div class="wildcard-box">
+                <div class="wildcard-symbol">*</div>
+                <div class="wildcard-text">Any unmatched hostname routes here</div>
+            </div>
+            
+            <div class="route-table">
+                <div class="route-item">
+                    <span class="route-host">app1.com</span>
+                    <span class="route-arrow">→</span>
+                    <span class="route-target">App 1</span>
+                </div>
+                <div class="route-item">
+                    <span class="route-host">app2.com</span>
+                    <span class="route-arrow">→</span>
+                    <span class="route-target">App 2</span>
+                </div>
+                <div class="route-item">
+                    <span class="route-host">anything.else</span>
+                    <span class="route-arrow">→</span>
+                    <span class="route-target">App 3 (here)</span>
+                </div>
+                <div class="route-item">
+                    <span class="route-host">*</span>
+                    <span class="route-arrow">→</span>
+                    <span class="route-target">App 3</span>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app3-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app3
+  template:
+    metadata:
+      labels:
+        app: app3
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: html-volume
+          mountPath: /usr/share/nginx/html
+      volumes:
+      - name: html-volume
+        configMap:
+          name: app3-html
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app3-service
+spec:
+  selector:
+    app: app3
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80

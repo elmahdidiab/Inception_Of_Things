@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitlab
+  namespace: gitlab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gitlab
+  template:
+    metadata:
+      labels:
+        app: gitlab
+    spec:
+      containers:
+      - name: gitlab
+        image: gitlab/gitlab-ce:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: "4"
+            memory: "4Gi"
+          requests:
+            cpu: "2"
+            memory: "2Gi"
+        env:
+        - name: GITLAB_OMNIBUS_CONFIG
+          value: |
+            external_url 'http://gitlab.gitlab.svc.cluster.local'
+            gitlab_rails['initial_root_password'] = 'Iot42BonuS!xKp9'
+            gitlab_rails['signup_enabled'] = false
+            # Single flag that disables prometheus + alertmanager + all exporters + grafana
+            prometheus_monitoring['enable'] = false
+            # Disable unused services (valid across GitLab 15-17)
+            gitlab_kas['enable'] = false
+            mattermost['enable'] = false
+            gitlab_pages['enable'] = false
+            registry['enable'] = false
+            # Smaller Puma footprint
+            puma['worker_processes'] = 2
+            puma['min_threads'] = 2
+            puma['max_threads'] = 4
+            # Smaller Sidekiq footprint
+            sidekiq['concurrency'] = 5
+        volumeMounts:
+        - name: config
+          mountPath: /etc/gitlab
+        - name: data
+          mountPath: /var/opt/gitlab
+        - name: logs
+          mountPath: /var/log/gitlab
+      volumes:
+      - name: config
+        emptyDir: {}
+      - name: data
+        emptyDir: {}
+      - name: logs
+        emptyDir: {}

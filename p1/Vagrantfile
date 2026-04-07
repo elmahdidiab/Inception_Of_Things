@@ -1,0 +1,80 @@
+ENV['VAGRANT_NO_PARALLEL'] = 'yes'
+
+
+File.write('/tmp/k3s_token_p1', '') unless File.exist?('/tmp/k3s_token_p1')
+
+Vagrant.configure("2") do |config|
+  config.vm.box              = "perk/ubuntu-2204-arm64"
+  config.vm.box_check_update = false
+
+  config.vm.define "aatkiS" do |server|
+    server.vm.hostname = "aatkiS"
+    server.ssh.port = 50022
+
+    server.trigger.before :up do |t|
+      t.info = "Clearing port 50022..."
+      t.run  = { inline: "bash -c 'lsof -ti:50022 | xargs kill -9 2>/dev/null || true; sleep 3'" }
+    end
+
+    server.vm.provider "qemu" do |qemu|
+      qemu.arch       = "aarch64"
+      qemu.machine    = "virt,accel=hvf,highmem=off"
+      qemu.cpu        = "host"
+      qemu.net_device = "virtio-net-pci"
+      qemu.memory     = "2048"
+      qemu.cpus       = 2
+      qemu.ssh_port   = 50022
+    end
+
+    server.vm.provision "shell", path: "scripts/server.sh"
+
+
+    server.trigger.after :up do |t|
+      t.info = "Exporting K3s token and forwarding port 6443..."
+      key = File.join(File.dirname(__FILE__),
+                      ".vagrant", "machines", "aatkiS", "qemu", "private_key")
+      t.run = {
+        inline: "bash -c '" \
+                "ssh -p 50022 -i #{key} " \
+                "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR " \
+                "vagrant@127.0.0.1 \"sudo cat /var/lib/rancher/k3s/server/node-token\" " \
+                "> /tmp/k3s_token_p1 && " \
+                "sudo pkill -f \"ssh.*0.0.0.0:6443:localhost:6443\" 2>/dev/null || true; sleep 1; " \
+                "sudo ssh -fNT -L 0.0.0.0:6443:localhost:6443 -p 50022 -i #{key} " \
+                "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR " \
+                "vagrant@127.0.0.1 || true'"
+      }
+    end
+
+    server.trigger.before [:destroy, :halt] do |t|
+      t.info = "Tearing down K3s API tunnel..."
+      t.run  = { inline: "bash -c 'sudo pkill -f \"ssh.*0.0.0.0:6443:localhost:6443\" 2>/dev/null || true'" }
+    end
+  end
+
+  config.vm.define "aatkiSW" do |worker|
+    worker.vm.hostname = "aatkiSW"
+    worker.ssh.port = 50023
+
+    worker.trigger.before :up do |t|
+      t.info = "Clearing port 50023..."
+      t.run  = { inline: "bash -c 'lsof -ti:50023 | xargs kill -9 2>/dev/null || true; sleep 1'" }
+    end
+
+    worker.vm.provider "qemu" do |qemu|
+      qemu.arch       = "aarch64"
+      qemu.machine    = "virt,accel=hvf,highmem=off"
+      qemu.cpu        = "host"
+      qemu.net_device = "virtio-net-pci"
+      qemu.memory     = "1024"
+      qemu.cpus       = 1
+      qemu.ssh_port   = 50023
+    end
+
+    worker.vm.provision "file",
+      source:      "/tmp/k3s_token_p1",
+      destination: "/tmp/node-token"
+
+    worker.vm.provision "shell", path: "scripts/worker.sh"
+  end
+end
