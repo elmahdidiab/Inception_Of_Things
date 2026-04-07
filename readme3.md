@@ -167,7 +167,7 @@ curl http://192.168.56.110                         # ✅ default backend
   and the dark red particles one. Use a browser extension like "ModHeader" to set the
   Host header in the browser for a cleaner visual. All pointing at 192.168.56.110.
 -->
-![Three apps — one IP, routed by Host header](.github/assets/p2-three-apps.png)
+![Three apps — one IP, routed by Host header](3Apps)
 
 ```mermaid
 flowchart LR
