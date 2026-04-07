@@ -290,9 +290,10 @@ The non-obvious problems this solves: GitLab's `/-/health` returns 200 before th
 <!--
   📸 SCREENSHOT — The ╔══ ALL DONE ══╗ terminal banner from the end of install.sh.
   Show all 5 URLs + PAT printed inside the box. Keep 10–15 lines of install output
-  above it visible. Dark terminal. This is the money shot.
+  above it visible. Dark terminal. This is the money shot.bonus_gitlab+argocd
 -->
 ![Bonus — ALL DONE banner](bonus_terminal)
+![Bonus — ALL DONE banner](bonus_gitlab+argocd)
 
 ```mermaid
 flowchart TD
