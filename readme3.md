@@ -156,9 +156,9 @@ flowchart LR
 One VM, one k3s cluster, three apps, one IP. Each app's HTML lives in a **ConfigMap** mounted into nginx — no custom images. Traefik reads the `Host:` header live and routes accordingly. QEMU NAT is bypassed via an SSH tunnel + loopback alias.
 
 ```bash
-curl -H "Host: app1.com" http://192.168.56.110   # ✅ glassmorphism gradient
-curl -H "Host: app2.com" http://192.168.56.110   # ✅ neon green terminal
-curl http://192.168.56.110                         # ✅ default backend
+curl -H "Host: app1.com" http://192.168.56.110   # First App
+curl -H "Host: app2.com" http://192.168.56.110   # Second App
+curl http://192.168.56.110                         # Third App
 ```
 
 <!--
