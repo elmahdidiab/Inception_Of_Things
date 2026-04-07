@@ -221,9 +221,10 @@ Change the image tag in `deployment.yaml`, push → ArgoCD detects the diff → 
 <!--
   📸 SCREENSHOT — ArgoCD UI at http://localhost:8080 (dark theme).
   Show the wil-playground Application card with Synced ✅ Healthy ✅ status.
-  Expand the resource tree: Application → Deployment → ReplicaSet → Pod.
+  Expand the resource tree: Application → Deployment → ReplicaSet → Pod.p3_terminal
   Ideally capture it mid-sync (yellow "Syncing" → green) for drama.
 -->
+![ArgoCD UI — wil-playground Synced and Healthy](p3_terminal)
 ![ArgoCD UI — wil-playground Synced and Healthy](p3132)
 
 ```mermaid
