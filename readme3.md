@@ -351,20 +351,30 @@ flowchart TD
 .
 ├── p1/                   # Two-node k3s cluster (Vagrant + QEMU)
 │   ├── Vagrantfile
-│   └── scripts/          server.sh · worker.sh
+│   └── scripts/
+│       ├── server.sh     # Installs k3s server
+│       └── worker.sh     # Joins k3s agent
 │
 ├── p2/                   # Ingress routing (Vagrant + k3s + Traefik)
 │   ├── Vagrantfile
-│   ├── confs/            app1.yaml · app2.yaml · app3.yaml · ingress.yaml
-│   └── scripts/          setup_server.sh
+│   ├── confs/            # app1.yaml  app2.yaml  app3.yaml  ingress.yaml
+│   └── scripts/
+│       └── setup_server.sh
 │
 ├── p3/                   # k3d + ArgoCD GitOps
-│   └── scripts/          install.sh · clean.sh
+│   └── scripts/
+│       ├── install.sh
+│       └── clean.sh
 │
 └── bonus/                # Full self-hosted pipeline (one command)
-    ├── confs/            GitLab deployment manifests
-    ├── manifests/        App manifests → pushed to GitLab → synced by ArgoCD
-    └── scripts/          install.sh · clean.sh · install_k3d.sh · install-gitlap.sh · install_bonus.sh
+    ├── confs/            # GitLab deployment manifests
+    ├── manifests/        # App manifests pushed to GitLab (ArgoCD source)
+    └── scripts/
+        ├── install.sh    # The orchestrator
+        ├── clean.sh      # Keeps GitLab alive, deletes only argocd+dev
+        ├── install_k3d.sh
+        ├── install-gitlap.sh
+        └── install_bonus.sh
 ```
 
 ---
