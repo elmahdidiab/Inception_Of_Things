@@ -1,159 +1,381 @@
-# Inception of Things
+# Inception of Things 🚀
 
-> Kubernetes, GitOps, and Infrastructure-as-Code — from a bare VM to a fully automated self-healing delivery pipeline.
-
----
-
-<!-- SCREENSHOT: terminal showing vagrant up + all pods Running -->
-![banner placeholder](.github/assets/banner.png)
+> Built a full GitOps delivery pipeline from absolute zero — no cloud, no magic buttons, just code, containers, and a pathological refusal to click things manually.
 
 ---
 
-## What is this?
-
-A four-part project that progressively builds a complete **DevOps infrastructure** from scratch — no cloud provider, no managed services, just a MacBook, a few shell scripts, and a deep understanding of how modern deployments actually work.
-
-Each part isolates one layer of the stack. By the end, `./install.sh` in the bonus part spins up a production-grade GitOps pipeline in under 10 minutes, fully automated.
-
----
-
-## The Stack
-
-| Layer | Technology |
-|---|---|
-| Virtualisation | QEMU + Apple HVF (ARM64, near-native speed) |
-| VM orchestration | Vagrant |
-| Kubernetes (in-VM) | k3s (single binary, Traefik built-in) |
-| Kubernetes (containerised) | k3d (k3s inside Docker) |
-| Git server | GitLab CE (self-hosted) |
-| GitOps controller | ArgoCD |
-| Ingress / reverse proxy | Traefik |
-| Container runtime | containerd |
+<!--
+  📸 SCREENSHOT — Terminal hero shot:
+  Capture the bonus install.sh finishing inside a dark terminal (iTerm2 / Warp).
+  Show the final ╔═══ ALL DONE ═══╗ ASCII box with GitLab URL, ArgoCD URL, PAT and App URL visible.
+  Keep a few lines of the install steps above it for context. Tight crop, no desktop or dock.
+  Green-on-black or your actual color scheme — just make it look sharp.
+-->
+![Full pipeline — ALL DONE](media/bonus_installation.gif)
 
 ---
 
-## Parts
+## What's going on here?
 
-### Part 1 — k3s Cluster with Vagrant
+Production-grade DevOps infrastructure, built entirely on a MacBook — four progressive parts, each adding a new layer until a single `./install.sh` spins up a fully automated GitOps loop. Pushing a YAML file to Git is the only human action needed to deploy to Kubernetes.
 
-<!-- SCHEMA: two VMs, server ←token→ worker, kubectl from host via SSH tunnel -->
-![p1 schema placeholder](.github/assets/p1-schema.png)
-
-Two VMs provisioned from code. One runs the k3s **server**, the other joins as an **agent**. The server's join token is extracted over SSH and passed to the worker automatically — no manual steps.
-
-An SSH port-forward tunnels the Kubernetes API (`localhost:6443`) from inside QEMU to the host, so `kubectl` works from the Mac without any networking magic.
-
-**Concepts in play:** k3s server/agent architecture, node join tokens, kubeconfig, SSH local port forwarding, Vagrant multi-machine provisioning, QEMU ARM64 virtualisation.
+No AWS. No GCP. No clicking. Everything is code, everything is reproducible.
 
 ---
 
-### Part 2 — Kubernetes Ingress Routing
+## Tech Stack
 
-<!-- SCHEMA: curl → loopback alias → SSH tunnel → VM → Traefik → 3 services -->
-![p2 schema placeholder](.github/assets/p2-schema.png)
+| Layer | Tool | Why |
+|---|---|---|
+| Virtualisation | QEMU + Apple HVF | ARM64 VMs at near-native speed on M1/M2 |
+| VM orchestration | Vagrant | Reproducible environments from a single `Vagrantfile` |
+| Kubernetes in-VM | k3s | Full K8s in ~70 MB — Traefik + containerd included |
+| Kubernetes in-Docker | k3d | Full cluster as Docker containers — instant spin-up |
+| Self-hosted Git | GitLab CE | Because depending on GitHub for a GitOps demo is ironic |
+| GitOps controller | ArgoCD | Watches Git, syncs cluster, heals itself — obsessively |
+| Ingress / proxy | Traefik | Built into k3s, reads Ingress objects live |
+| Container runtime | containerd | The actual thing running containers under the hood |
 
-One VM, one k3s cluster, three apps, one IP — the classic **virtual hosting** problem solved with Kubernetes Ingress.
+---
 
-Each app is served by nginx, with its HTML stored in a **ConfigMap** and mounted as a volume. No custom Docker images, no registry. Traefik reads the `Host:` header on every request and routes to the matching Service.
+## Skills You're Actually Looking At
+
+> The concepts that matter for real DevOps/Platform/SRE roles — earned by hitting every sharp edge of each tool.
+
+<table>
+<tr>
+<td>
+
+**☸️ Kubernetes**
+Pods · Deployments · ReplicaSets · Services
+ConfigMaps · Ingress · Namespaces
+RBAC Secrets · ArgoCD Application CRD
+
+</td>
+<td>
+
+**🌐 Networking**
+SSH local port-forwarding · NAT traversal
+Virtual host routing · ClusterIP
+Loopback aliasing · Traefik reverse proxy
+
+</td>
+</tr>
+<tr>
+<td>
+
+**🔄 GitOps**
+Full ArgoCD pipeline: repo wiring
+Automated sync · self-heal · prune
+Rolling updates triggered by `git push`
+
+</td>
+<td>
+
+**⚙️ Infrastructure as Code**
+Vagrant multi-machine provisioning
+Idempotent shell scripts
+Fully reproducible environment from zero
+
+</td>
+</tr>
+<tr>
+<td>
+
+**🏗️ Self-hosted Tooling**
+GitLab CE: deployed, bootstrapped and
+configured entirely via its own REST API
+— zero UI interaction
+
+</td>
+<td>
+
+**🐛 Real Debugging**
+k3d container isolation · GitLab Rails warmup gap
+ArgoCD secret label schema · macOS Keychain
+git interception · CSRF session auth flows
+
+</td>
+</tr>
+</table>
+
+---
+
+## The Parts
+
+### Part 1 — Two-Node k3s Cluster
+
+Two QEMU ARM64 VMs provisioned from a single `Vagrantfile`. The server installs k3s and generates a join token; a Vagrant trigger SSHes in, extracts it, and injects it into the worker automatically. An SSH port-forward (`host:6443 → VM:6443`) makes `kubectl` work from macOS without any static networking.
 
 ```bash
-curl -H "Host: app1.com" http://192.168.56.110   # → App 1
-curl -H "Host: app2.com" http://192.168.56.110   # → App 2
-curl http://192.168.56.110                         # → App 3 (default backend)
-```
-
-**Concepts in play:** Kubernetes Deployment, Service (ClusterIP), ConfigMap volume mounts, Ingress host-based routing, Traefik Ingress controller, SSH tunnel as a NAT workaround, loopback interface aliasing.
-
----
-
-### Part 3 — k3d + ArgoCD
-
-<!-- SCHEMA: k3d cluster inside Docker, ArgoCD watching a Git repo, syncing to dev namespace -->
-![p3 schema placeholder](.github/assets/p3-schema.png)
-
-Kubernetes **inside Docker** — k3d creates a full k3s cluster as a set of containers. No VM needed. ArgoCD is deployed and configured to watch a Git repository; any push to the repo is automatically reflected in the `dev` namespace.
-
-The `wil-playground` app ships in multiple versions. Changing the image tag in the manifest and pushing triggers ArgoCD to roll out the new version — **zero manual kubectl**.
-
-**Concepts in play:** k3d cluster management, ArgoCD Application CRD, GitOps reconciliation loop, automated sync + self-heal + prune, rolling updates, namespaces, port-forwarding.
-
----
-
-### Bonus — Full GitOps Pipeline (One Command)
-
-<!-- SCREENSHOT: install.sh running end to end — cluster → GitLab → ArgoCD → app live -->
-![bonus screenshot placeholder](.github/assets/bonus-run.png)
-
-<!-- SCHEMA: full pipeline diagram: install.sh → k3d → GitLab CE → git push → ArgoCD → dev namespace → wil-playground -->
-![bonus pipeline schema placeholder](.github/assets/bonus-pipeline.png)
-
-The entire infrastructure — cluster, self-hosted Git server, GitOps controller, application — is provisioned and wired together by a **single orchestrator script**:
-
-```
-./install.sh
-```
-
-What it does:
-
-```
-[1/5]  k3d cluster
-[2/5]  GitLab CE deployed (self-hosted, no SaaS)
-[3/5]  Bootstrap: PAT created, GitLab project created via API
-[4/5]  Manifests pushed to GitLab via git
-[5/5]  ArgoCD deployed, secret patched, Application created
-       → ArgoCD pulls from GitLab, deploys to dev namespace
-       → wil-playground live at http://localhost:8888
-```
-
-Port-forwards for ArgoCD UI, GitLab, and the app are started and **detached** — they survive after the script exits and auto-reconnect if a pod restarts.
-
-**Concepts in play:** k3d, GitLab CE self-hosting, GitLab REST API (session auth, CSRF, PAT creation), ArgoCD repository secrets, GitOps with automated sync, macOS Keychain bypass for git, self-healing port-forward loops, idempotent scripting.
-
----
-
-## Skills Demonstrated
-
-```
-Infrastructure as Code    Vagrant + shell provisioners, fully reproducible environments
-Kubernetes internals      Pods, Deployments, Services, ConfigMaps, Ingress, Namespaces
-Cluster variants          k3s (lightweight, in-VM) and k3d (containerised, Docker-based)
-Networking                SSH tunnels, NAT traversal, virtual hosting, ClusterIP/Traefik routing
-GitOps                    ArgoCD Application, automated sync, self-heal, prune
-Self-hosted tooling       GitLab CE deployed and bootstrapped entirely via API
-Automation                End-to-end idempotent install scripts, zero manual steps
-Debugging                 Race conditions, API readiness probes, platform-specific quirks (macOS/ARM)
-```
-
----
-
-## Running It
-
-Each part is self-contained and independent.
-
-```bash
-# Part 1 — two-node k3s cluster
 cd p1 && vagrant up
+kubectl get nodes
+# aatkiS    Ready    control-plane   2m
+# aatkiSW   Ready    <none>          1m
+```
 
-# Part 2 — ingress routing
-cd p2 && vagrant up
+```mermaid
+flowchart LR
+    subgraph macOS["🖥️  macOS Host"]
+        style macOS fill:#1e1e2e,stroke:#89b4fa,color:#cdd6f4
+        kubectl("kubectl"):::blue
+        tunnel("SSH Tunnel\nlocalhost:6443 → VM:6443"):::blue
+        token_file("/tmp/k3s_token_p1"):::slate
+    end
 
-# Part 3 — k3d + ArgoCD
-cd p3/scripts && ./install.sh
+    subgraph server["⚙️  QEMU VM — aatkiS (server)"]
+        style server fill:#1e1e2e,stroke:#a6e3a1,color:#cdd6f4
+        k3s_server("k3s server\nAPI :6443"):::green
+        node_token("node-token"):::green
+    end
 
-# Bonus — full pipeline
+    subgraph worker["🔧  QEMU VM — aatkiSW (worker)"]
+        style worker fill:#1e1e2e,stroke:#fab387,color:#cdd6f4
+        k3s_agent("k3s agent"):::orange
+    end
+
+    kubectl -->|HTTPS| tunnel
+    tunnel -->|SSH channel| k3s_server
+    k3s_server --> node_token
+    node_token -->|Vagrant trigger extracts| token_file
+    token_file -->|provisioner injects| k3s_agent
+    k3s_agent -->|registers as node| k3s_server
+
+    classDef blue fill:#313244,stroke:#89b4fa,color:#89b4fa
+    classDef green fill:#313244,stroke:#a6e3a1,color:#a6e3a1
+    classDef orange fill:#313244,stroke:#fab387,color:#fab387
+    classDef slate fill:#313244,stroke:#6c7086,color:#6c7086
+```
+
+**Concepts:** k3s server/agent architecture · node join tokens · kubeconfig · SSH port-forwarding · Vagrant triggers · QEMU HVF
+
+---
+
+### Part 2 — Ingress Routing: One IP, Three Apps
+
+One VM, one k3s cluster, three apps, one IP. Each app's HTML lives in a **ConfigMap** mounted into nginx — no custom images. Traefik reads the `Host:` header live and routes accordingly. QEMU NAT is bypassed via an SSH tunnel + loopback alias.
+
+```bash
+curl -H "Host: app1.com" http://192.168.56.110   # First App
+curl -H "Host: app2.com" http://192.168.56.110   # Second App
+curl http://192.168.56.110                         # Third App
+```
+
+<!--
+  📸 SCREENSHOT — Three browser tabs (or three curl outputs in split panes) showing
+  each app looking visually distinct: the purple gradient one, the neon green matrix one,
+  and the dark red particles one. Use a browser extension like "ModHeader" to set the
+  Host header in the browser for a cleaner visual. All pointing at 192.168.56.110.
+-->
+![Three apps — one IP, routed by Host header](media/p2_apps_browser.png)
+
+```mermaid
+flowchart LR
+    curl("curl\n-H 'Host: app1.com'"):::slate
+
+    subgraph mac["🖥️  macOS Host"]
+        style mac fill:#1e1e2e,stroke:#89b4fa,color:#cdd6f4
+        lo0("lo0 alias\n192.168.56.110"):::blue
+        sshtun("SSH Tunnel\n:80 → VM:80"):::blue
+    end
+
+    subgraph vm["⚙️  QEMU VM — ediabS"]
+        style vm fill:#1e1e2e,stroke:#cba6f7,color:#cdd6f4
+        traefik("Traefik :80"):::purple
+
+        subgraph k3s["k3s cluster"]
+            style k3s fill:#181825,stroke:#585b70,color:#cdd6f4
+            ingress("Ingress rules"):::purple
+            svc1("app1-service"):::green
+            svc2("app2-service"):::yellow
+            svc3("app3-service"):::red
+            pod1("app1 Pod\nnginx + ConfigMap"):::green
+            pod2("app2 Pod\nnginx + ConfigMap"):::yellow
+            pod3("app3 Pod\nnginx + ConfigMap"):::red
+        end
+    end
+
+    curl --> lo0 --> sshtun --> traefik --> ingress
+    ingress -->|"Host: app1.com"| svc1 --> pod1
+    ingress -->|"Host: app2.com"| svc2 --> pod2
+    ingress -->|"no match → default"| svc3 --> pod3
+
+    classDef blue   fill:#313244,stroke:#89b4fa,color:#89b4fa
+    classDef purple fill:#313244,stroke:#cba6f7,color:#cba6f7
+    classDef green  fill:#313244,stroke:#a6e3a1,color:#a6e3a1
+    classDef yellow fill:#313244,stroke:#f9e2af,color:#f9e2af
+    classDef red    fill:#313244,stroke:#f38ba8,color:#f38ba8
+    classDef slate  fill:#313244,stroke:#6c7086,color:#6c7086
+```
+
+**Concepts:** Deployment · Service · ConfigMap volume mounts · Ingress host routing · Traefik · SSH NAT traversal · loopback aliasing
+
+---
+
+### Part 3 — k3d + ArgoCD: GitOps Enters the Chat
+
+Kubernetes inside Docker, controlled by Git. k3d spins up a full cluster as containers. ArgoCD watches a repo and is personally offended by any drift between Git and the cluster — it corrects it immediately, automatically, without asking.
+
+Change the image tag in `deployment.yaml`, push → ArgoCD detects the diff → rolls out the new version → `Synced ✅ Healthy ✅`. Zero `kubectl apply`.
+
+<!--
+  📸 SCREENSHOT — ArgoCD UI at http://localhost:8080 (dark theme).
+  Show the wil-playground Application card with Synced ✅ Healthy ✅ status.
+  Expand the resource tree: Application → Deployment → ReplicaSet → Pod.p3_terminal
+  Ideally capture it mid-sync (yellow "Syncing" → green) for drama.
+-->
+![ArgoCD UI — wil-playground Synced and Healthy](media/p3_installation.png)
+![ArgoCD UI — wil-playground Synced and Healthy](media/p3_argocd.png)
+
+```mermaid
+flowchart TD
+    dev("👨‍💻 git push\nimage tag v1 → v2"):::slate
+
+    subgraph repo["📦  Git Repository"]
+        style repo fill:#1e1e2e,stroke:#f9e2af,color:#cdd6f4
+        manifest("deployment.yaml"):::yellow
+    end
+
+    subgraph docker["🐳  Docker — k3d cluster (iotcluster)"]
+        style docker fill:#1e1e2e,stroke:#89b4fa,color:#cdd6f4
+
+        subgraph argocd["argocd namespace"]
+            style argocd fill:#181825,stroke:#cba6f7,color:#cdd6f4
+            ctrl("ArgoCD Controller\nreconcile every 3 min"):::purple
+        end
+
+        subgraph devns["dev namespace"]
+            style devns fill:#181825,stroke:#a6e3a1,color:#cdd6f4
+            deploy("Deployment\nwil-playground"):::green
+            pod_old("Pod v1 💀"):::red
+            pod_new("Pod v2 ✅"):::green
+        end
+    end
+
+    dev -->|push| manifest
+    ctrl -->|polls repo| manifest
+    manifest -->|diff → apply| deploy
+    deploy --> pod_old & pod_new
+    pod_old -.->|terminated| pod_new
+
+    classDef purple fill:#313244,stroke:#cba6f7,color:#cba6f7
+    classDef green  fill:#313244,stroke:#a6e3a1,color:#a6e3a1
+    classDef yellow fill:#313244,stroke:#f9e2af,color:#f9e2af
+    classDef red    fill:#313244,stroke:#f38ba8,color:#f38ba8
+    classDef slate  fill:#313244,stroke:#6c7086,color:#6c7086
+```
+
+**Concepts:** k3d lifecycle · ArgoCD Application CRD · GitOps reconciliation · automated sync + self-heal + prune · rolling updates · namespace isolation
+
+---
+
+### Bonus — One Command to Rule Them All
+
+The entire infrastructure — cluster, self-hosted Git server, GitOps controller, deployed app — from a single script.
+
+```bash
 cd bonus/scripts && ./install.sh
 ```
 
-Cleanup scripts mirror each installer:
-```bash
-cd p3/scripts  && ./clean.sh
-cd bonus/scripts && ./clean.sh
+```
+[1/5] k3d cluster
+[2/5] GitLab CE deployed (self-hosted, inside the cluster)
+[3/5] GitLab bootstrapped: CSRF login → PAT → project via REST API
+[4/5] Manifests pushed to GitLab (macOS Keychain bypassed)
+[5/5] ArgoCD deployed + wired to GitLab → app live at :8888
 ```
 
-> **Requirements:** macOS (Apple Silicon), Docker Desktop, Vagrant, QEMU, Homebrew.  
-> The bonus `install.sh` handles its own dependency checks and installs what is missing.
+The non-obvious problems this solves: GitLab's `/-/health` returns 200 before the Rails API actually works (retry loop). PAT creation requires a full web session CSRF flow (GitLab 16+ removed the simple API). ArgoCD silently ignores repo secrets without a specific label + `type: git` field. macOS Keychain hijacks git credentials unless you zero out every config layer. Port-forwards die after the script exits unless you `disown` them.
+
+<!--
+  📸 SCREENSHOT — The ╔══ ALL DONE ══╗ terminal banner from the end of install.sh.
+  Show all 5 URLs + PAT printed inside the box. Keep 10–15 lines of install output
+  above it visible. Dark terminal. This is the money shot.bonus_gitlab+argocd
+-->
+![Bonus — ALL DONE banner](media/bonus_terminal.png)
+![Bonus — ALL DONE banner](media/bonus_gitlab+argocd)
+
+```mermaid
+flowchart TD
+    script("🖥️ ./install.sh"):::slate
+
+    subgraph docker["🐳  Docker — k3d cluster (13-cluster)"]
+        style docker fill:#1e1e2e,stroke:#89b4fa,color:#cdd6f4
+
+        subgraph gl["gitlab namespace"]
+            style gl fill:#181825,stroke:#f38ba8,color:#cdd6f4
+            gitlab("GitLab CE\nRails + Puma"):::red
+        end
+
+        subgraph ar["argocd namespace"]
+            style ar fill:#181825,stroke:#cba6f7,color:#cdd6f4
+            argocd("ArgoCD Controller"):::purple
+            secret("Secret: gitlab-creds\ntype:git + PAT label"):::purple
+        end
+
+        subgraph dv["dev namespace"]
+            style dv fill:#181825,stroke:#a6e3a1,color:#cdd6f4
+            wil("wil-playground\n:8888 ✅"):::green
+        end
+    end
+
+    pf1("port-forward\n:30090 → GitLab"):::blue
+    pf2("port-forward\n:8080 → ArgoCD"):::blue
+    pf3("self-healing loop\n:8888 → wil-playground"):::blue
+
+    script -->|"① k3d create"| docker
+    script -->|"② kubectl apply"| gitlab
+    script -->|"③ CSRF→PAT→project"| gitlab
+    script -->|"④ git push manifests"| gitlab
+    script -->|"⑤ ArgoCD + patch secret"| secret
+    secret --> argocd
+    argocd -->|"pulls & syncs"| wil
+    gitlab <-->|"internal DNS"| argocd
+    script --> pf1 & pf2 & pf3
+    pf3 -->|"auto-reconnect"| wil
+
+    classDef red    fill:#313244,stroke:#f38ba8,color:#f38ba8
+    classDef purple fill:#313244,stroke:#cba6f7,color:#cba6f7
+    classDef green  fill:#313244,stroke:#a6e3a1,color:#a6e3a1
+    classDef blue   fill:#313244,stroke:#89b4fa,color:#89b4fa
+    classDef slate  fill:#313244,stroke:#6c7086,color:#6c7086
+```
+
+**Concepts:** k3d · GitLab CE self-hosting · GitLab REST API (CSRF + session auth) · ArgoCD repo secrets · GitOps E2E · macOS Keychain bypass · idempotent scripting · self-healing port-forwards
 
 ---
 
-<!-- SCREENSHOT: ArgoCD UI showing wil-playground Synced + Healthy -->
-![argocd ui placeholder](.github/assets/argocd-synced.png)
+## Project Structure
+
+```
+.
+├── p1/                   # Two-node k3s cluster (Vagrant + QEMU)
+│   ├── Vagrantfile
+│   └── scripts/
+│       ├── server.sh     # Installs k3s server
+│       └── worker.sh     # Joins k3s agent
+│
+├── p2/                   # Ingress routing (Vagrant + k3s + Traefik)
+│   ├── Vagrantfile
+│   ├── confs/            # app1.yaml  app2.yaml  app3.yaml  ingress.yaml
+│   └── scripts/
+│       └── setup_server.sh
+│
+├── p3/                   # k3d + ArgoCD GitOps
+│   └── scripts/
+│       ├── install.sh
+│       └── clean.sh
+│
+└── bonus/                # Full self-hosted pipeline (one command)
+    ├── confs/            # GitLab deployment manifests
+    ├── manifests/        # App manifests pushed to GitLab (ArgoCD source)
+    └── scripts/
+        ├── install.sh    # The orchestrator
+        ├── clean.sh      # Keeps GitLab alive, deletes only argocd+dev
+        ├── install_k3d.sh
+        ├── install-gitlap.sh
+        └── install_bonus.sh
+```
+
+---
+
