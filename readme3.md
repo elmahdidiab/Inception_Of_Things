@@ -292,7 +292,7 @@ The non-obvious problems this solves: GitLab's `/-/health` returns 200 before th
   Show all 5 URLs + PAT printed inside the box. Keep 10–15 lines of install output
   above it visible. Dark terminal. This is the money shot.
 -->
-![Bonus — ALL DONE banner](.github/assets/bonus-done.png)
+![Bonus — ALL DONE banner](bonus_terminal)
 
 ```mermaid
 flowchart TD
