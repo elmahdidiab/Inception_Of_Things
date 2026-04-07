@@ -11,7 +11,7 @@
   Keep a few lines of the install steps above it for context. Tight crop, no desktop or dock.
   Green-on-black or your actual color scheme — just make it look sharp.
 -->
-![Full pipeline — ALL DONE](demo5.gif)
+![Full pipeline — ALL DONE](media/bonus_installation.gif)
 
 ---
 
@@ -167,7 +167,7 @@ curl http://192.168.56.110                         # Third App
   and the dark red particles one. Use a browser extension like "ModHeader" to set the
   Host header in the browser for a cleaner visual. All pointing at 192.168.56.110.
 -->
-![Three apps — one IP, routed by Host header](fin2)
+![Three apps — one IP, routed by Host header](media/p2_apps_browser.png)
 
 ```mermaid
 flowchart LR
@@ -224,8 +224,8 @@ Change the image tag in `deployment.yaml`, push → ArgoCD detects the diff → 
   Expand the resource tree: Application → Deployment → ReplicaSet → Pod.p3_terminal
   Ideally capture it mid-sync (yellow "Syncing" → green) for drama.
 -->
-![ArgoCD UI — wil-playground Synced and Healthy](p3_terminal)
-![ArgoCD UI — wil-playground Synced and Healthy](p3132)
+![ArgoCD UI — wil-playground Synced and Healthy](media/p3_installation.png)
+![ArgoCD UI — wil-playground Synced and Healthy](media/p3_argocd.png)
 
 ```mermaid
 flowchart TD
@@ -292,8 +292,8 @@ The non-obvious problems this solves: GitLab's `/-/health` returns 200 before th
   Show all 5 URLs + PAT printed inside the box. Keep 10–15 lines of install output
   above it visible. Dark terminal. This is the money shot.bonus_gitlab+argocd
 -->
-![Bonus — ALL DONE banner](bonus_terminal)
-![Bonus — ALL DONE banner](bonus_gitlab+argocd)
+![Bonus — ALL DONE banner](media/bonus_terminal.png)
+![Bonus — ALL DONE banner](media/bonus_gitlab+argocd)
 
 ```mermaid
 flowchart TD
