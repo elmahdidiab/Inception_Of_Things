@@ -224,7 +224,7 @@ Change the image tag in `deployment.yaml`, push → ArgoCD detects the diff → 
   Expand the resource tree: Application → Deployment → ReplicaSet → Pod.
   Ideally capture it mid-sync (yellow "Syncing" → green) for drama.
 -->
-![ArgoCD UI — wil-playground Synced and Healthy](.github/assets/p3-argocd-ui.png)
+![ArgoCD UI — wil-playground Synced and Healthy](p31)(p32)
 
 ```mermaid
 flowchart TD
