@@ -1,6 +1,6 @@
 # Inception of Things 🚀
 
-> Built a full GitOps delivery pipeline from absolute zero — no cloud, no magic buttons, just code, containers, and a pathological refusal to click things manually.
+> Built a full GitOps delivery pipeline from absolute zero — no cloud, no magic buttons, just code, containers, and a pathological refusal to click things manually. 
 
 ---
 
