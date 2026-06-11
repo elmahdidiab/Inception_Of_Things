@@ -101,7 +101,7 @@ git interception · CSRF session auth flows
 
 ---
 
-## The Parts
+## The Project Parts
 
 ### Part 1 — Two-Node k3s Cluster
 
