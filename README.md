@@ -345,6 +345,17 @@ flowchart TD
 
 ---
 
+## Academic Integrity
+
+Some provisioning and automation scripts have been intentionally omitted
+from the public repository to discourage direct reuse of the project by
+students currently completing the 42 curriculum.
+
+The repository still contains the architecture, configuration, manifests,
+documentation, and deployment design.
+
+The complete implementation can be demonstrated during technical interviews.
+
 ## Project Structure
 
 ```
