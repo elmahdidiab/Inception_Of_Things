@@ -334,7 +334,7 @@ cd bonus/scripts && ./install.sh
   above it visible. Dark terminal. This is the money shot.bonus_gitlab+argocd
 -->
 ![Bonus — ALL DONE banner](media/bonus_terminal.png)
-![Bonus — ALL DONE banner](media/bonus_gitlab+argocd)
+![Bonus — ALL DONE banner](media/bonus_gitlab+argocd.png)
 
 </div>
 
