@@ -1,8 +1,16 @@
-# Inception of Things 🚀
+<div align="center">
 
-> Built a full GitOps delivery pipeline from absolute zero — no cloud, no magic buttons, just code, containers, and a pathological refusal to click things manually. 
+# 🚀 Inception of Things
 
----
+![Kubernetes](https://img.shields.io/badge/Kubernetes-k3s%20%7C%20k3d-blue?style=for-the-badge&logo=kubernetes&logoColor=white)
+![GitOps](https://img.shields.io/badge/GitOps-ArgoCD-orange?style=for-the-badge&logo=argo&logoColor=white)
+![GitLab](https://img.shields.io/badge/GitLab-Self--Hosted-FC6D26?style=for-the-badge&logo=gitlab&logoColor=white)
+![Vagrant](https://img.shields.io/badge/Orchestration-Vagrant%20%2B%20QEMU-1563FF?style=for-the-badge&logo=vagrant&logoColor=white)
+![Build](https://img.shields.io/badge/42_School-Project-black?style=for-the-badge&logo=42&logoColor=white)
+
+**Built a full GitOps delivery pipeline from absolute zero — no cloud, no magic buttons, just code, containers, and a pathological refusal to click things manually.**
+
+<br/>
 
 <!--
   📸 SCREENSHOT — Terminal hero shot:
@@ -13,9 +21,26 @@
 -->
 ![Full pipeline — ALL DONE](media/bonus_installation.gif)
 
+</div>
+
 ---
 
-## What's going on here?
+## 📑 Table of Contents
+
+- [🔍 What's Going On Here?](#whats-going-on-here)
+- [🛠️ Tech Stack](#tech-stack)
+- [🎯 Skills You're Actually Looking At](#skills-youre-actually-looking-at)
+- [🧱 The Project Parts](#the-project-parts)
+  - [Part 1 — Two-Node k3s Cluster](#part-1--two-node-k3s-cluster)
+  - [Part 2 — Ingress Routing: One IP, Three Apps](#part-2--ingress-routing-one-ip-three-apps)
+  - [Part 3 — k3d + ArgoCD: GitOps Enters the Chat](#part-3--k3d--argocd-gitops-enters-the-chat)
+  - [Bonus — One Command to Rule Them All](#bonus--one-command-to-rule-them-all)
+- [🔒 Academic Integrity](#academic-integrity)
+- [📁 Project Structure](#project-structure)
+
+---
+
+## 🔍 What's Going On Here?
 
 Production-grade DevOps infrastructure, built entirely on a MacBook — four progressive parts, each adding a new layer until a single `./install.sh` spins up a fully automated GitOps loop. Pushing a YAML file to Git is the only human action needed to deploy to Kubernetes.
 
@@ -23,76 +48,76 @@ No AWS. No GCP. No clicking. Everything is code, everything is reproducible.
 
 ---
 
-## Tech Stack
+## 🛠️ Tech Stack
 
 | Layer | Tool | Why |
-|---|---|---|
-| Virtualisation | QEMU + Apple HVF | ARM64 VMs at near-native speed on M1/M2 |
-| VM orchestration | Vagrant | Reproducible environments from a single `Vagrantfile` |
-| Kubernetes in-VM | k3s | Full K8s in ~70 MB — Traefik + containerd included |
-| Kubernetes in-Docker | k3d | Full cluster as Docker containers — instant spin-up |
-| Self-hosted Git | GitLab CE | Because depending on GitHub for a GitOps demo is ironic |
-| GitOps controller | ArgoCD | Watches Git, syncs cluster, heals itself — obsessively |
-| Ingress / proxy | Traefik | Built into k3s, reads Ingress objects live |
-| Container runtime | containerd | The actual thing running containers under the hood |
+|:---|:---|:---|
+| **Virtualisation** | QEMU + Apple HVF | ARM64 VMs at near-native speed on M1/M2 |
+| **VM orchestration** | Vagrant | Reproducible environments from a single `Vagrantfile` |
+| **Kubernetes in-VM** | k3s | Full K8s in ~70 MB — Traefik + containerd included |
+| **Kubernetes in-Docker** | k3d | Full cluster as Docker containers — instant spin-up |
+| **Self-hosted Git** | GitLab CE | Because depending on GitHub for a GitOps demo is ironic |
+| **GitOps controller** | ArgoCD | Watches Git, syncs cluster, heals itself — obsessively |
+| **Ingress / proxy** | Traefik | Built into k3s, reads Ingress objects live |
+| **Container runtime** | containerd | The actual thing running containers under the hood |
 
 ---
 
-## Skills You're Actually Looking At
+## 🎯 Skills You're Actually Looking At
 
-> The concepts that matter for real DevOps/Platform/SRE roles — earned by hitting every sharp edge of each tool.
+> 💡 *The concepts that matter for real DevOps/Platform/SRE roles — earned by hitting every sharp edge of each tool.*
 
 <table>
 <tr>
-<td>
+<td width="50%">
 
-**☸️ Kubernetes**
-Pods · Deployments · ReplicaSets · Services
-ConfigMaps · Ingress · Namespaces
+**☸️ Kubernetes**  
+Pods · Deployments · ReplicaSets · Services  
+ConfigMaps · Ingress · Namespaces  
 RBAC Secrets · ArgoCD Application CRD
 
 </td>
-<td>
+<td width="50%">
 
-**🌐 Networking**
-SSH local port-forwarding · NAT traversal
-Virtual host routing · ClusterIP
+**🌐 Networking**  
+SSH local port-forwarding · NAT traversal  
+Virtual host routing · ClusterIP  
 Loopback aliasing · Traefik reverse proxy
 
 </td>
 </tr>
 <tr>
-<td>
+<td width="50%">
 
-**🔄 GitOps**
-Full ArgoCD pipeline: repo wiring
-Automated sync · self-heal · prune
+**🔄 GitOps**  
+Full ArgoCD pipeline: repo wiring  
+Automated sync · self-heal · prune  
 Rolling updates triggered by `git push`
 
 </td>
-<td>
+<td width="50%">
 
-**⚙️ Infrastructure as Code**
-Vagrant multi-machine provisioning
-Idempotent shell scripts
+**⚙️ Infrastructure as Code**  
+Vagrant multi-machine provisioning  
+Idempotent shell scripts  
 Fully reproducible environment from zero
 
 </td>
 </tr>
 <tr>
-<td>
+<td width="50%">
 
-**🏗️ Self-hosted Tooling**
-GitLab CE: deployed, bootstrapped and
-configured entirely via its own REST API
+**🏗️ Self-hosted Tooling**  
+GitLab CE: deployed, bootstrapped and  
+configured entirely via its own REST API  
 — zero UI interaction
 
 </td>
-<td>
+<td width="50%">
 
-**🐛 Real Debugging**
-k3d container isolation · GitLab Rails warmup gap
-ArgoCD secret label schema · macOS Keychain
+**🐛 Real Debugging**  
+k3d container isolation · GitLab Rails warmup gap  
+ArgoCD secret label schema · macOS Keychain  
 git interception · CSRF session auth flows
 
 </td>
@@ -101,7 +126,7 @@ git interception · CSRF session auth flows
 
 ---
 
-## The Project Parts
+## 🧱 The Project Parts
 
 ### Part 1 — Two-Node k3s Cluster
 
@@ -147,7 +172,7 @@ flowchart LR
     classDef slate fill:#313244,stroke:#6c7086,color:#6c7086
 ```
 
-**Concepts:** k3s server/agent architecture · node join tokens · kubeconfig · SSH port-forwarding · Vagrant triggers · QEMU HVF
+> 📌 **Concepts:** k3s server/agent architecture · node join tokens · kubeconfig · SSH port-forwarding · Vagrant triggers · QEMU HVF
 
 ---
 
@@ -161,6 +186,8 @@ curl -H "Host: app2.com" http://192.168.56.110   # Second App
 curl http://192.168.56.110                         # Third App
 ```
 
+<div align="center">
+
 <!--
   📸 SCREENSHOT — Three browser tabs (or three curl outputs in split panes) showing
   each app looking visually distinct: the purple gradient one, the neon green matrix one,
@@ -168,6 +195,8 @@ curl http://192.168.56.110                         # Third App
   Host header in the browser for a cleaner visual. All pointing at 192.168.56.110.
 -->
 ![Three apps — one IP, routed by Host header](media/p2_apps_browser.png)
+
+</div>
 
 ```mermaid
 flowchart LR
@@ -208,7 +237,7 @@ flowchart LR
     classDef slate  fill:#313244,stroke:#6c7086,color:#6c7086
 ```
 
-**Concepts:** Deployment · Service · ConfigMap volume mounts · Ingress host routing · Traefik · SSH NAT traversal · loopback aliasing
+> 📌 **Concepts:** Deployment · Service · ConfigMap volume mounts · Ingress host routing · Traefik · SSH NAT traversal · loopback aliasing
 
 ---
 
@@ -216,7 +245,9 @@ flowchart LR
 
 Kubernetes inside Docker, controlled by Git. k3d spins up a full cluster as containers. ArgoCD watches a repo and is personally offended by any drift between Git and the cluster — it corrects it immediately, automatically, without asking.
 
-Change the image tag in `deployment.yaml`, push → ArgoCD detects the diff → rolls out the new version → `Synced ✅ Healthy ✅`. Zero `kubectl apply`.
+Change the image tag in `deployment.yaml`, push $\rightarrow$ ArgoCD detects the diff $\rightarrow$ rolls out the new version $\rightarrow$ `Synced ✅ Healthy ✅`. Zero `kubectl apply`.
+
+<div align="center">
 
 <!--
   📸 SCREENSHOT — ArgoCD UI at http://localhost:8080 (dark theme).
@@ -227,9 +258,11 @@ Change the image tag in `deployment.yaml`, push → ArgoCD detects the diff → 
 ![ArgoCD UI — wil-playground Synced and Healthy](media/p3_installation.png)
 ![ArgoCD UI — wil-playground Synced and Healthy](media/p3_argocd.png)
 
+</div>
+
 ```mermaid
 flowchart TD
-    dev("👨‍💻 git push\nimage tag v1 → v2"):::slate
+    dev("👨💻 git push\nimage tag v1 → v2"):::slate
 
     subgraph repo["📦  Git Repository"]
         style repo fill:#1e1e2e,stroke:#f9e2af,color:#cdd6f4
@@ -265,7 +298,7 @@ flowchart TD
     classDef slate  fill:#313244,stroke:#6c7086,color:#6c7086
 ```
 
-**Concepts:** k3d lifecycle · ArgoCD Application CRD · GitOps reconciliation · automated sync + self-heal + prune · rolling updates · namespace isolation
+> 📌 **Concepts:** k3d lifecycle · ArgoCD Application CRD · GitOps reconciliation · automated sync + self-heal + prune · rolling updates · namespace isolation
 
 ---
 
@@ -285,7 +318,15 @@ cd bonus/scripts && ./install.sh
 [5/5] ArgoCD deployed + wired to GitLab → app live at :8888
 ```
 
-The non-obvious problems this solves: GitLab's `/-/health` returns 200 before the Rails API actually works (retry loop). PAT creation requires a full web session CSRF flow (GitLab 16+ removed the simple API). ArgoCD silently ignores repo secrets without a specific label + `type: git` field. macOS Keychain hijacks git credentials unless you zero out every config layer. Port-forwards die after the script exits unless you `disown` them.
+> [!NOTE]
+> **The non-obvious problems this solves:**
+> - GitLab's `/-/health` returns 200 before the Rails API actually works (retry loop).
+> - PAT creation requires a full web session CSRF flow (GitLab 16+ removed the simple API).
+> - ArgoCD silently ignores repo secrets without a specific label + `type: git` field.
+> - macOS Keychain hijacks git credentials unless you zero out every config layer.
+> - Port-forwards die after the script exits unless you `disown` them.
+
+<div align="center">
 
 <!--
   📸 SCREENSHOT — The ╔══ ALL DONE ══╗ terminal banner from the end of install.sh.
@@ -294,6 +335,8 @@ The non-obvious problems this solves: GitLab's `/-/health` returns 200 before th
 -->
 ![Bonus — ALL DONE banner](media/bonus_terminal.png)
 ![Bonus — ALL DONE banner](media/bonus_gitlab+argocd)
+
+</div>
 
 ```mermaid
 flowchart TD
@@ -341,22 +384,21 @@ flowchart TD
     classDef slate  fill:#313244,stroke:#6c7086,color:#6c7086
 ```
 
-**Concepts:** k3d · GitLab CE self-hosting · GitLab REST API (CSRF + session auth) · ArgoCD repo secrets · GitOps E2E · macOS Keychain bypass · idempotent scripting · self-healing port-forwards
+> 📌 **Concepts:** k3d · GitLab CE self-hosting · GitLab REST API (CSRF + session auth) · ArgoCD repo secrets · GitOps E2E · macOS Keychain bypass · idempotent scripting · self-healing port-forwards
 
 ---
 
-## Academic Integrity
+## 🔒 Academic Integrity
 
-Some provisioning and automation scripts have been intentionally omitted
-from the public repository to discourage direct reuse of the project by
-students currently completing the 42 curriculum.
+Some provisioning and automation scripts have been intentionally omitted from the public repository to discourage direct reuse of the project by students currently completing the 42 curriculum.
 
-The repository still contains the architecture, configuration, manifests,
-documentation, and deployment design.
+The repository still contains the architecture, configuration, manifests, documentation, and deployment design.
 
 The complete implementation can be demonstrated during technical interviews.
 
-## Project Structure
+---
+
+## 📁 Project Structure
 
 ```
 .
@@ -390,3 +432,6 @@ The complete implementation can be demonstrated during technical interviews.
 
 ---
 
+<div align="center">
+  <sub>Built with ❤️ as part of the 42 Network Curriculum by Elmahdi DIAB.</sub>
+</div>
